@@ -205,7 +205,7 @@ class _mainTelaState extends State<mainTela> {
                                     ],
                                   ),
                                 );
-                              }).toList(),
+                              }).toList().reversed.toList(),
                             ),
                           )
                       );

@@ -23,7 +23,7 @@ class _loginState extends State<login> {
     Navigator.pop(context);
     Navigator.push(context,
         MaterialPageRoute(builder: (context){
-          return mainTela();
+          return const mainTela();
         }));
   }
 
@@ -52,7 +52,7 @@ class _loginState extends State<login> {
               ),
               Container(
                 padding: const EdgeInsets.all(16),
-                child: Text('Simples, facil e gratis!')
+                child: const Text('Simples, facil e gratis!')
               ),
               Center(
                 child: Container(
