@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:orcamento_inteligente/PDF/pdf.dart';
+import 'package:orcamento_inteligente/configuracoesDoUsuario/userConfig.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 var UID = FirebaseAuth.instance.currentUser?.uid;
 
@@ -21,7 +27,49 @@ class _mainTelaState extends State<mainTela> {
       return Scaffold(
           appBar: AppBar(
             centerTitle: true,
-            title: const Text('Orçamento Inteligente'),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Orçamento Inteligente'),
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+
+                    if(value == "Opção 1"){
+
+                      var userInfos = await FirebaseFirestore.instance
+                          .collection("Users")
+                          .doc(UID)
+                          .get();
+
+                      final http.Response responseData = await http.get(Uri.parse(userInfos['LogoImage']));
+                      Uint8List uint8list = responseData.bodyBytes;
+                      var buffer = uint8list.buffer;
+                      ByteData byteData = ByteData.view(buffer);
+                      var tempDir = await getTemporaryDirectory();
+
+                      var uuid = const Uuid();
+                      String id = uuid.v4();
+
+                      var convertedFile = await File("${tempDir.path}/$id").writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context){
+                            return userConfig(userInfos["Nome"], convertedFile);
+                          }));
+                    }
+
+                  },
+                  itemBuilder: (BuildContext context){
+                    return [
+                      const PopupMenuItem<String>(
+                        value: 'Opção 1',
+                        child: Text('Configurações do Usuario'),
+                      ),
+                    ];
+                  },
+                )
+              ],
+            ),
             backgroundColor: Colors.blue,
           ),
           body: Center(
@@ -121,7 +169,7 @@ class _mainTelaState extends State<mainTela> {
                                                 MaterialPageRoute(builder: (context){
                                                   return generatePDF2(userInfos["Nome"], documents["clientName"], documents["clientEndereco"], documents["clientNumero"],
                                                       documents["clientEmail"], documents["relatorioInicial"], documents["atividadesDescript"],
-                                                      documents["NomedoItem"], documents["valorSemDesconto"], "${documents["valorItem"]}", documents["desconto"]);
+                                                      documents["NomedoItem"], documents["valorSemDesconto"], "${documents["valorItem"]}", documents["desconto"], userInfos['LogoImage']);
                                                 }));
                                           }, child: const Icon(Icons.print)
                                           ),

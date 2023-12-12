@@ -21,9 +21,10 @@ class generatePDF2 extends StatelessWidget {
   String valorSemDesconto;
   String valorItem;
   String desconto;
+  String urlImage;
   generatePDF2(this.userName, this.clientName, this.clientEndereco,
       this.clientNumero, this.clientEmail, this.relatorioInicial,
-      this.atividadesDescript, this.NomedoItem, this.valorSemDesconto, this.valorItem, this.desconto, {super.key});
+      this.atividadesDescript, this.NomedoItem, this.valorSemDesconto, this.valorItem, this.desconto, this.urlImage, {super.key});
 
   var UID = FirebaseAuth.instance.currentUser?.uid;
   @override
@@ -49,19 +50,20 @@ class generatePDF2 extends StatelessWidget {
           body: PdfPreview(
             build: (format) => _generatePDF2(format, 'Gerar PDF', userName, clientName,
                 clientEndereco, clientNumero, clientEmail,
-                relatorioInicial, atividadesDescript, NomedoItem, valorSemDesconto, valorItem, desconto, context),
+                relatorioInicial, atividadesDescript, NomedoItem, valorSemDesconto, valorItem, desconto, urlImage, context),
           ),
         );
       },
     );
   }
-
   Future<Uint8List> _generatePDF2(PdfPageFormat format,
       String titulo, String userName, String clientName,
       String clientEndereco, String clientNumero, String clientEmail,
       String relatorioInicial, String atividadesDescript, String NomedoItem,
-      String valorSemDesconto, String valorItem, String desconto,
+      String valorSemDesconto, String valorItem, String desconto, String urlImage,
       context) async {
+    final netImage = await networkImage(urlImage);
+
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     pdf.addPage(
       pw.Page(
@@ -71,6 +73,14 @@ class generatePDF2 extends StatelessWidget {
             //crossAxisAlignment: pw.CrossAxisAlignment.center,
             //mainAxisAlignment: pw.MainAxisAlignment.center,
               children: [
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(1),
+                  child: pw.Image(
+                      netImage,
+                    width: 100,
+                    height: 100
+                  ),
+                ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: pw.CrossAxisAlignment.center,

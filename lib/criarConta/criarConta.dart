@@ -1,17 +1,38 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:orcamento_inteligente/login/loginScreen.dart';
 import 'package:orcamento_inteligente/mainTela/mainTela.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 //Desenvolvido por HeroRickyGames
+
+final FirebaseStorage storage = FirebaseStorage.instance;
 
 class criarConta extends StatefulWidget {
   const criarConta({super.key});
 
   @override
   State<criarConta> createState() => _criarContaState();
+}
+
+Future<String> _uploadImageToFirebase(File file, String id) async {
+  // Crie uma referência única para o arquivo
+
+  final reference = storage.ref().child('images/$id/$id');
+
+  // Faça upload da imagem para o Cloud Storage
+  await reference.putFile(file);
+
+  // Recupere a URL do download da imagem para salvar no banco de dados
+  final url = await reference.getDownloadURL();
+  return url;
 }
 
 class _criarContaState extends State<criarConta> {
@@ -220,13 +241,27 @@ class _criarContaState extends State<criarConta> {
 
                               var auth = FirebaseAuth.instance;
 
-                              auth.createUserWithEmailAndPassword(email: Email, password: Senha).whenComplete(() {
+                              auth.createUserWithEmailAndPassword(email: Email, password: Senha).whenComplete(() async {
+
                                 var UID = FirebaseAuth.instance.currentUser?.uid;
+
+                                String url = 'https://raw.githubusercontent.com/HeroRickyGAMES/Lovers-KanjoProject/master/assets/corporate-user-icon.png';
+
+                                final http.Response responseData = await http.get(Uri.parse(url));
+                                Uint8List uint8list = responseData.bodyBytes;
+                                var buffer = uint8list.buffer;
+                                ByteData byteData = ByteData.view(buffer);
+                                var tempDir = await getTemporaryDirectory();
+
+                                var convertedFile = await File("${tempDir.path}/$UID").writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+                                final imageUrl = await _uploadImageToFirebase(convertedFile, UID!);
 
                                 FirebaseFirestore.instance.collection('Users').doc(UID).set({
                                   'uid': UID,
                                   'Nome' : nome.trim(),
                                   'Email': Email.trim(),
+                                  "LogoImage": imageUrl
                                 }).whenComplete(() {
                                   Navigator.of(context).pop();
                                   irParaTelaMain();

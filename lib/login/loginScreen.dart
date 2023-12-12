@@ -50,6 +50,10 @@ class _loginState extends State<login> {
                   scale: 3,
                 ),
               ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Text('Simples, facil e gratis!')
+              ),
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(16),
