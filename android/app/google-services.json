@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "689653058643",
+    "project_id": "orcamento-inteligente-30398",
+    "storage_bucket": "orcamento-inteligente-30398.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689653058643:android:c0315256a282a78eb24aa6",
+        "android_client_info": {
+          "package_name": "com.hrt.orcamento_inteligente"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0mgDusZ0_-xlisuAoYeFNvJCSVAxb9TI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
